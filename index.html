@@ -1,62 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="quantum">
 <head>
-    <!-- Required meta tags -->
+    <!-- Quantum Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO & Social Meta -->
-    <title>AutoPortfolio Ultra | Build Your Pro Portfolio</title>
-    <meta name="description" content="Generate a stunning portfolio in seconds. No coding needed.">
-    <meta property="og:image" content="assets/images/social-preview.jpg">
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="assets/images/favicon.ico">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>NexusPort X-9000 | AI Portfolio Builder</title>
+
+    <!-- Holographic CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css">
+    <link rel="stylesheet" href="./css/quantum.css">
+
+    <!-- Neuro-Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Rajdhani:wght@500&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <!-- App Container -->
-    <div class="app">
-        <!-- Header -->
-        <header class="hero">
-            <h1>Build Your <span>Ultra Portfolio</span></h1>
-            <p>No coding. Just fill the form and deploy.</p>
-        </header>
+    <!-- 3D Particle Network -->
+    <div id="particle-network"></div>
 
-        <!-- Main App -->
-        <main>
-            <!-- Template Selector -->
-            <section class="template-selector">
-                <div class="template" data-template="modern">
-                    <img src="assets/images/modern-preview.jpg" alt="Modern Template">
-                    <button>Select Modern</button>
-                </div>
-                <div class="template" data-template="creative">
-                    <img src="assets/images/creative-preview.jpg" alt="Creative Template">
-                    <button>Select Creative</button>
-                </div>
-            </section>
-
-            <!-- Form -->
-            <section class="form-section">
-                <form id="portfolioForm">
-                    <input type="text" placeholder="Your Name" required>
-                    <textarea placeholder="About You" required></textarea>
-                    <button type="submit">Generate Portfolio</button>
-                </form>
-            </section>
-
-            <!-- Preview -->
-            <section class="preview-section">
-                <div id="portfolioPreview"></div>
-                <button id="downloadBtn">Download HTML</button>
-            </section>
-        </main>
+    <!-- Augmented Reality Dock -->
+    <div class="ar-dock hvr-bob">
+        <button id="arToggle">👁️ AR MODE</button>
     </div>
 
-    <!-- JavaScript -->
-    <script src="assets/js/script.js"></script>
+    <!-- Main Interface -->
+    <div class="nexus-container">
+        <!-- Career Selector (AI-Powered) -->
+        <section class="career-pulse">
+            <h2 class="neuro-glitch">SELECT YOUR DOMAIN</h2>
+            <div class="career-grid">
+                <div class="career-card" data-career="tech">
+                    <div class="hologram"></div>
+                    <h3>CYBER ENGINEER</h3>
+                </div>
+                <div class="career-card" data-career="design">
+                    <div class="hologram"></div>
+                    <h3>VISUAL SHAPER</h3>
+                </div>
+                <!-- More careers... -->
+            </div>
+        </section>
+
+        <!-- AI-Powered Form -->
+        <section class="neuro-form">
+            <form id="aiPortfolioForm">
+                <!-- Dynamic fields load based on career -->
+                <div class="input-group hvr-underline-from-center">
+                    <input type="text" id="neuralName" required>
+                    <label>YOUR DESIGNATION</label>
+                </div>
+                <!-- More fields... -->
+            </form>
+        </section>
+
+        <!-- Holographic Preview -->
+        <section class="holographic-preview">
+            <div id="livePortfolio"></div>
+            <button id="quantumExport">⚡ EXPORT MATRIX</button>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="./js/quantum.js" type="module"></script>
 </body>
 </html>
