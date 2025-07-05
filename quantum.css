@@ -1,0 +1,55 @@
+/* === QUANTUM DESIGN SYSTEM === */
+:root {
+    /* Neuro-Colors */
+    --matrix-green: #00ff41;
+    --cyber-purple: #9d00ff;
+    --neon-pink: #ff00a0;
+    --quantum-blue: #00f0ff;
+    --void-black: #0f0f0f;
+}
+
+body {
+    background: var(--void-black);
+    color: white;
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Holographic Elements */
+.hologram {
+    background: linear-gradient(135deg, 
+        rgba(0, 255, 65, 0.1), 
+        rgba(157, 0, 255, 0.1));
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--matrix-green);
+    box-shadow: 0 0 30px var(--cyber-purple);
+}
+
+/* Neuro-Glitch Text */
+.neuro-glitch {
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 
+        0 0 10px var(--matrix-green),
+        0 0 20px var(--neon-pink);
+    animation: glitch 1s infinite alternate;
+}
+
+@keyframes glitch {
+    0% { text-shadow: 0 0 10px var(--matrix-green); }
+    100% { text-shadow: 
+        0 0 15px var(--neon-pink),
+        0 0 25px var(--quantum-blue); }
+}
+
+/* 3D Career Cards */
+.career-card {
+    transform: perspective(1000px) rotateY(0deg);
+    transition: transform 0.4s, box-shadow 0.4s;
+}
+
+.career-card:hover {
+    transform: perspective(1000px) rotateY(15deg);
+    box-shadow: 
+        0 0 30px var(--matrix-green),
+        0 0 60px var(--cyber-purple);
+}
