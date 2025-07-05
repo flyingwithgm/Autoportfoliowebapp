@@ -3,61 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoPortfolio Generator</title>
+    <title>✨ AutoPortfolio PRO</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <div class="particles-background"></div>
     <div class="container">
-        <h1>AutoPortfolio Generator</h1>
-        <p>Fill out the form below to generate your personalized portfolio website.</p>
-        
-        <div class="app-container">
-            <div class="form-section">
-                <h2>Your Information</h2>
+        <header>
+            <h1><span class="gradient-text">AutoPortfolio</span> PRO</h1>
+            <p class="subtitle">Generate a <strong>futuristic</strong> portfolio in seconds 🚀</p>
+        </header>
+
+        <div class="app-grid">
+            <!-- FORM SECTION -->
+            <section class="form-section glass-card">
+                <h2><i class="fas fa-user-edit"></i> Your Details</h2>
                 <form id="portfolioForm">
                     <div class="form-group">
-                        <label for="name">Your Name:</label>
-                        <input type="text" id="name" required>
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" required placeholder="Elon Musk">
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="about">About Me:</label>
-                        <textarea id="about" rows="4" required></textarea>
+                        <label for="career">Career Field *</label>
+                        <select id="career" required>
+                            <option value="tech">Technology / Developer</option>
+                            <option value="design">Design / Creative</option>
+                            <option value="business">Business / Marketing</option>
+                            <option value="science">Science / Engineering</option>
+                            <option value="art">Art / Writing</option>
+                        </select>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="skills">Skills (comma separated):</label>
-                        <input type="text" id="skills" required>
+                        <label for="about">About Me *</label>
+                        <textarea id="about" rows="4" required placeholder="Passionate innovator..."></textarea>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="projects">Projects (one per line, format: title:description):</label>
-                        <textarea id="projects" rows="4" required></textarea>
+                        <label for="skills">Skills (comma-separated) *</label>
+                        <input type="text" id="skills" required placeholder="JavaScript, UI/UX, Project Management">
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="github">GitHub URL (optional):</label>
-                        <input type="url" id="github">
+                        <label for="projects">Projects (Format: Title|Description) *</label>
+                        <textarea id="projects" rows="4" required placeholder="Tesla|Electric car revolution..."></textarea>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="linkedin">LinkedIn URL (optional):</label>
-                        <input type="url" id="linkedin">
+                        <label for="github"><i class="fab fa-github"></i> GitHub</label>
+                        <input type="url" id="github" placeholder="https://github.com/username">
                     </div>
-                    
-                    <button type="submit" class="generate-btn">Generate Portfolio</button>
+
+                    <div class="form-group">
+                        <label for="linkedin"><i class="fab fa-linkedin"></i> LinkedIn</label>
+                        <input type="url" id="linkedin" placeholder="https://linkedin.com/in/username">
+                    </div>
+
+                    <button type="submit" class="generate-btn pulse">
+                        <i class="fas fa-magic"></i> Generate Portfolio
+                    </button>
                 </form>
-            </div>
-            
-            <div class="preview-section">
-                <h2>Live Preview</h2>
-                <div id="portfolioPreview" class="portfolio-preview">
-                    <p>Your portfolio preview will appear here.</p>
+            </section>
+
+            <!-- PREVIEW SECTION -->
+            <section class="preview-section">
+                <div class="toggle-container">
+                    <span>Light</span>
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span>Dark</span>
                 </div>
-                <div id="codeOutput" class="code-output">
-                    <p>Your HTML code will appear here after generation.</p>
+
+                <div id="portfolioPreview" class="portfolio-preview glass-card">
+                    <div class="preview-placeholder">
+                        <i class="fas fa-star"></i>
+                        <p>Your futuristic portfolio will appear here!</p>
+                    </div>
                 </div>
-            </div>
+
+                <button id="downloadBtn" class="download-btn">
+                    <i class="fas fa-download"></i> Download HTML
+                </button>
+            </section>
         </div>
     </div>
 
