@@ -1,133 +1,135 @@
-document.getElementById('portfolioForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Get form values
-    const name = document.getElementById('name').value;
-    const about = document.getElementById('about').value;
-    const skills = document.getElementById('skills').value.split(',').map(skill => skill.trim());
-    const projects = document.getElementById('projects').value.split('\n').filter(project => project.trim() !== '');
-    const github = document.getElementById('github').value;
-    const linkedin = document.getElementById('linkedin').value;
-    
-    // Process projects
-    const processedProjects = projects.map(project => {
-        const [title, ...descriptionParts] = project.split(':');
-        const description = descriptionParts.join(':').trim();
-        return { title: title.trim(), description };
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('portfolioForm');
+    const themeToggle = document.getElementById('themeToggle');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // Dark/Light Mode Toggle
+    themeToggle.addEventListener('change', () => {
+        document.body.classList.toggle('dark-mode');
     });
-    
-    // Generate portfolio HTML
-    const portfolioHTML = generatePortfolioHTML(name, about, skills, processedProjects, github, linkedin);
-    
-    // Display preview
-    document.getElementById('portfolioPreview').innerHTML = portfolioHTML;
-    
-    // Display code output
-    document.getElementById('codeOutput').textContent = `<!DOCTYPE html>\n<html>\n<head>\n<title>${name}'s Portfolio</title>\n<style>\n${getPortfolioCSS()}\n</style>\n</head>\n<body>\n${portfolioHTML}\n</body>\n</html>`;
-});
 
-function generatePortfolioHTML(name, about, skills, projects, github, linkedin) {
-    let skillsHTML = '';
-    if (skills.length > 0) {
-        skillsHTML = `<ul>${skills.map(skill => `<li>${skill}</li>`).join('')}</ul>`;
-    }
-    
-    let projectsHTML = '';
-    if (projects.length > 0) {
-        projectsHTML = projects.map(project => `
-            <div class="project">
-                <h3>${project.title}</h3>
-                <p>${project.description}</p>
+    // Form Submission
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        generatePortfolio();
+    });
+
+    // Download Portfolio
+    downloadBtn.addEventListener('click', downloadPortfolio);
+
+    function generatePortfolio() {
+        // Get form values
+        const name = document.getElementById('name').value;
+        const career = document.getElementById('career').value;
+        const about = document.getElementById('about').value;
+        const skills = document.getElementById('skills').value.split(',').map(skill => skill.trim());
+        const projects = document.getElementById('projects').value.split('\n').filter(p => p.trim() !== '');
+        const github = document.getElementById('github').value;
+        const linkedin = document.getElementById('linkedin').value;
+
+        // Set career-based colors
+        let primaryColor, secondaryColor, accentColor;
+        switch (career) {
+            case 'tech':
+                primaryColor = 'var(--tech-primary)';
+                secondaryColor = 'var(--tech-secondary)';
+                accentColor = 'var(--tech-accent)';
+                break;
+            case 'design':
+                primaryColor = 'var(--design-primary)';
+                secondaryColor = 'var(--design-secondary)';
+                accentColor = 'var(--design-accent)';
+                break;
+            case 'business':
+                primaryColor = 'var(--business-primary)';
+                secondaryColor = 'var(--business-secondary)';
+                accentColor = 'var(--business-accent)';
+                break;
+            case 'science':
+                primaryColor = 'var(--science-primary)';
+                secondaryColor = 'var(--science-secondary)';
+                accentColor = 'var(--science-accent)';
+                break;
+            case 'art':
+                primaryColor = 'var(--art-primary)';
+                secondaryColor = 'var(--art-secondary)';
+                accentColor = 'var(--art-accent)';
+                break;
+        }
+
+        // Generate HTML
+        const portfolioHTML = `
+            <div class="portfolio" style="--primary: ${primaryColor}; --secondary: ${secondaryColor}; --accent: ${accentColor}">
+                <header class="portfolio-header">
+                    <h1 class="portfolio-name">${name}</h1>
+                    <div class="portfolio-socials">
+                        ${github ? `<a href="${github}" target="_blank"><i class="fab fa-github"></i></a>` : ''}
+                        ${linkedin ? `<a href="${linkedin}" target="_blank"><i class="fab fa-linkedin"></i></a>` : ''}
+                    </div>
+                </header>
+
+                <section class="portfolio-about">
+                    <h2><i class="fas fa-user"></i> About Me</h2>
+                    <p>${about}</p>
+                </section>
+
+                <section class="portfolio-skills">
+                    <h2><i class="fas fa-code"></i> Skills</h2>
+                    <div class="skills-container">
+                        ${skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </section>
+
+                <section class="portfolio-projects">
+                    <h2><i class="fas fa-project-diagram"></i> Projects</h2>
+                    <div class="projects-grid">
+                        ${projects.map(project => {
+                            const [title, ...descParts] = project.split('|');
+                            const description = descParts.join('|').trim();
+                            return `
+                                <div class="project-card">
+                                    <h3>${title}</h3>
+                                    <p>${description}</p>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </section>
             </div>
-        `).join('');
-    }
-    
-    let socialLinksHTML = '';
-    if (github || linkedin) {
-        socialLinksHTML = '<div class="social-links">';
-        if (github) socialLinksHTML += `<a href="${github}" target="_blank">GitHub</a>`;
-        if (linkedin) socialLinksHTML += `<a href="${linkedin}" target="_blank">LinkedIn</a>`;
-        socialLinksHTML += '</div>';
-    }
-    
-    return `
-        <h1>${name}</h1>
-        <section class="about">
-            <h2>About Me</h2>
-            <p>${about}</p>
-        </section>
-        
-        <section class="skills">
-            <h2>Skills</h2>
-            ${skillsHTML}
-        </section>
-        
-        <section class="projects">
-            <h2>Projects</h2>
-            ${projectsHTML}
-        </section>
-        
-        ${socialLinksHTML}
-    `;
-}
+        `;
 
-function getPortfolioCSS() {
-    return `
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-        
-        h2 {
-            color: #3498db;
-            margin-top: 30px;
-        }
-        
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        
-        ul li {
-            display: inline-block;
-            background-color: #f0f0f0;
-            padding: 5px 10px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        
-        .project {
-            margin-bottom: 20px;
-        }
-        
-        .project h3 {
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-        
-        .social-links {
-            margin-top: 30px;
-        }
-        
-        .social-links a {
-            margin-right: 15px;
-            color: #3498db;
-            text-decoration: none;
-        }
-        
-        .social-links a:hover {
-            text-decoration: underline;
-        }
-    `;
-}
+        // Display preview
+        document.getElementById('portfolioPreview').innerHTML = portfolioHTML;
+    }
+
+    function downloadPortfolio() {
+        // Generate full HTML file
+        const htmlContent = `<!DOCTYPE html>
+        <html>
+        <head>
+            <title>${document.getElementById('name').value}'s Portfolio</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <style>
+                ${getComputedStyle(document.documentElement).cssText}
+                /* Additional portfolio-specific styles */
+                .portfolio { max-width: 900px; margin: 0 auto; padding: 2rem; }
+                .skill-tag { background: var(--accent); padding: 0.5rem 1rem; border-radius: 50px; }
+                .project-card { background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; }
+            </style>
+        </head>
+        <body class="${document.body.classList.contains('dark-mode') ? 'dark-mode' : ''}">
+            ${document.getElementById('portfolioPreview').innerHTML}
+        </body>
+        </html>`;
+
+        // Create download link
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${document.getElementById('name').value}-portfolio.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+});
