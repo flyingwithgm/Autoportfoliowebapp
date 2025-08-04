@@ -200,11 +200,16 @@
     <input type="file" id="json-import" accept=".json" style="display: none;">
 
     <script src="script.js"></script>
-<button id="copyBtn" style="background:#007bff;color:#fff;border:none;padding:10px;border-radius:4px;margin-top:10px">Copy HTML to Clipboard</button>
+<button id="copyBtn"
+        style="background:#007bff;color:#fff;border:none;padding:10px;border-radius:4px;margin-top:10px">
+  Copy HTML to Clipboard
+</button>
+
 <script>
 document.getElementById('copyBtn').addEventListener('click', () => {
-  const data = getFormData();               // your existing function
-  const html = generatePortfolioHTML(data, document.getElementById('layout-style').value);
+  // 1. Build complete HTML
+  const data   = getFormData();
+  const html   = generatePortfolioHTML(data, document.getElementById('layout-style').value);
   const fullPage = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -217,12 +222,24 @@ document.getElementById('copyBtn').addEventListener('click', () => {
 <body>${html}</body>
 </html>`;
 
-  // copy to clipboard
-  navigator.clipboard.writeText(fullPage).then(() => {
+  // 2. Copy via fallback
+  const ta = document.createElement('textarea');
+  ta.value = fullPage;
+  ta.style.position = 'fixed';   // avoid scroll jump
+  ta.style.opacity  = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
     alert('✅  HTML copied!\n\n1. Open any text editor (e.g. “Notes”, “QuickEdit”).\n2. Paste.\n3. Save as portfolio.html');
-  }).catch(() => alert('Copy failed; please use the share-sheet trick instead.'));
+  } catch (err) {
+    alert('Copy failed—long-press this text area and select “Copy All”:\n\n' + fullPage);
+  }
+  document.body.removeChild(ta);
 });
 </script>
+
 
 </body>
 </html>
