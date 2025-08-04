@@ -1,968 +1,362 @@
-/**
- * AutoPortfolio Pro - Professional Portfolio Generator
- * A complete vanilla JavaScript solution for generating portfolio websites
- * 
- * Features:
- * - Real-time portfolio preview
- * - Multiple theme options (light, dark, custom)
- * - Download as HTML files
- * - JSON import/export
- * - Responsive design
- * - LocalStorage persistence
- * - No external dependencies
- */
+/* AutoPortfolio Pro 2.0 – vanilla JS */
+(() => {
+  /* ---------- dom shortcuts ---------- */
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
-document.addEventListener('DOMContentLoaded', function() {
-    // ======================
-    // DOM Element References
-    // ======================
-    const portfolioForm = document.getElementById('portfolio-form');
-    const previewContainer = document.getElementById('portfolio-preview');
-    const themeSwitcher = document.querySelector('.theme-switcher');
-    const layoutStyleSelect = document.getElementById('layout-style');
-    const jsonImportInput = document.getElementById('json-import');
-    
-    // Form elements
-    const fullNameInput = document.getElementById('full-name');
-    const professionalTitleInput = document.getElementById('professional-title');
-    const bioInput = document.getElementById('bio');
-    const profileImageUrlInput = document.getElementById('profile-image-url');
-    const profileImageUploadInput = document.getElementById('profile-image-upload');
-    const imagePreview = document.getElementById('image-preview');
-    const skillsInput = document.getElementById('skills-input');
-    const addSkillBtn = document.getElementById('add-skill-btn');
-    const skillsTagsContainer = document.getElementById('skills-tags');
-    const educationContainer = document.getElementById('education-container');
-    const addEducationBtn = document.getElementById('add-education-btn');
-    const experienceContainer = document.getElementById('experience-container');
-    const addExperienceBtn = document.getElementById('add-experience-btn');
-    const projectsContainer = document.getElementById('projects-container');
-    const addProjectBtn = document.getElementById('add-project-btn');
-    const githubInput = document.getElementById('github');
-    const linkedinInput = document.getElementById('linkedin');
-    const emailInput = document.getElementById('email');
-    const websiteInput = document.getElementById('website');
-    
-    // Buttons
-    const resetBtn = document.getElementById('reset-btn');
-    const saveBtn = document.getElementById('save-btn');
-    const exportJsonBtn = document.getElementById('export-json-btn');
-    const downloadBtn = document.getElementById('download-btn');
-    
-    // ==========
-    // App State
-    // ==========
-    let skills = [];
-    let profileImage = null;
-    
-    // ================
-    // Initialization
-    // ================
-    function init() {
-        loadFromLocalStorage();
-        setupEventListeners();
-        setupDragAndDrop();
-        setupSystemThemeListener();
+  /* ---------- state ---------- */
+  let state = JSON.parse(localStorage.getItem('portfolio')) || {
+    fullName: '', professionalTitle: '', bio: '', profileImage: null,
+    skills: [], education: [], experience: [], projects: [],
+    contact: { github: '', linkedin: '', email: '', website: '' },
+    settings: { theme: 'light', template: 'classic' }
+  };
+
+  /* ---------- elements ---------- */
+  const form = $('#portfolio-form');
+  const preview = $('#portfolio-preview');
+  const templateSelect = $('#template-style');
+  const themeBtns = $$('.theme-btn');
+  const customPanel = $('#custom-theme-panel');
+  const customPrimary = $('#custom-primary');
+  const customBg = $('#custom-bg');
+
+  /* ---------- init ---------- */
+  init();
+  function init() {
+    populateForm();
+    attachEvents();
+    updatePreview();
+    loadSuggestedSkills();
+    applyTheme(state.settings.theme);
+    enableSortables();
+  }
+
+  /* ---------- events ---------- */
+  function attachEvents() {
+    form.addEventListener('input', debounce(updatePreview, 200));
+    templateSelect.addEventListener('change', updatePreview);
+    themeBtns.forEach(btn => btn.onclick = e => {
+      const theme = e.currentTarget.dataset.theme;
+      if (theme === 'custom') customPanel.classList.remove('hidden');
+      else { customPanel.classList.add('hidden'); applyTheme(theme); }
+    });
+    $('#apply-custom').onclick = () => applyCustomTheme();
+    $('#add-skill-btn').onclick = addSkill;
+    $('#skills-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } });
+    $('#add-education-btn').onclick = () => addSection('education');
+    $('#add-experience-btn').onclick = () => addSection('experience');
+    $('#add-project-btn').onclick = () => addSection('project');
+    $$('.sortable').forEach(enableSortables);
+    $('#save-btn').onclick = save;
+    $('#export-json-btn').onclick = exportJSON;
+    $('#download-btn').onclick = downloadHTML;
+    $('#print-btn').onclick = () => window.print();
+    $('#reset-btn').onclick = reset;
+    $('#json-import').addEventListener('change', importJSON);
+    $('#profile-image-upload').addEventListener('change', handleUpload);
+    $('#profile-image-url').addEventListener('input', handleImageUrl);
+  }
+
+  /* ---------- theme ---------- */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    state.settings.theme = theme;
+    save();
+  }
+  function applyCustomTheme() {
+    document.documentElement.style.setProperty('--primary-color', customPrimary.value);
+    document.documentElement.style.setProperty('--white', customBg.value);
+    state.settings.theme = 'custom';
+    save();
+  }
+
+  /* ---------- skills ---------- */
+  function addSkill() {
+    const val = $('#skills-input').value.trim();
+    if (val && !state.skills.includes(val)) {
+      state.skills.push(val);
+      $('#skills-input').value = '';
+      rememberSkill(val);
+      renderSkills();
+      updatePreview();
+      save();
+    }
+  }
+  function renderSkills() {
+    const box = $('#skills-tags');
+    box.innerHTML = '';
+    state.skills.forEach((skill, idx) => {
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.draggable = true;
+      tag.innerHTML = `${skill}<button class="tag-remove" data-idx="${idx}">&times;</button>`;
+      tag.querySelector('button').onclick = () => { state.skills.splice(idx, 1); renderSkills(); updatePreview(); save(); };
+      box.appendChild(tag);
+    });
+  }
+  function rememberSkill(skill) {
+    const arr = JSON.parse(localStorage.getItem('suggested-skills') || '[]');
+    if (!arr.includes(skill)) { arr.push(skill); localStorage.setItem('suggested-skills', JSON.stringify(arr)); loadSuggestedSkills(); }
+  }
+  function loadSuggestedSkills() {
+    const skills = JSON.parse(localStorage.getItem('suggested-skills') || '[]');
+    const dl = $('#skills-datalist');
+    dl.innerHTML = skills.map(s => `<option value="${s}">`).join('');
+  }
+
+  /* ---------- sections ---------- */
+  const templates = {
+    education: () => ({ school: '', degree: '', year: '' }),
+    experience: () => ({ company: '', role: '', year: '', description: '' }),
+    project: () => ({ title: '', description: '', link: '' })
+  };
+  function addSection(type) {
+    state[type + 's'].push(templates[type]());
+    renderSection(type);
+    updatePreview();
+    save();
+  }
+  function renderSection(type) {
+    const container = $(`#${type}s-container`);
+    container.innerHTML = '';
+    state[type + 's'].forEach((item, idx) => {
+      const div = document.createElement('div');
+      div.className = `${type}-item sort-item`;
+      div.draggable = true;
+      div.innerHTML = `
+        ${type === 'education' ? `
+          <div class="form-row">
+            <input class="school" placeholder="School" value="${item.school}">
+            <input class="degree" placeholder="Degree" value="${item.degree}">
+            <input class="year" placeholder="Year" value="${item.year}">
+          </div>
+        ` : ''}
+        ${type === 'experience' ? `
+          <div class="form-row">
+            <input class="company" placeholder="Company" value="${item.company}">
+            <input class="role" placeholder="Role" value="${item.role}">
+            <input class="year" placeholder="Year" value="${item.year}">
+          </div>
+          <textarea class="description" placeholder="Description">${item.description}</textarea>
+        ` : ''}
+        ${type === 'project' ? `
+          <div class="form-row">
+            <input class="title" placeholder="Title" value="${item.title}">
+            <input class="link" placeholder="https://..." value="${item.link}">
+          </div>
+          <textarea class="description" placeholder="Description">${item.description}</textarea>
+        ` : ''}
+        <button type="button" class="remove-btn" data-type="${type}" data-idx="${idx}">&times;</button>
+      `;
+      container.appendChild(div);
+    });
+    $$('.remove-btn').forEach(btn => btn.onclick = e => {
+      const { type, idx } = e.target.dataset;
+      state[type + 's'].splice(idx, 1);
+      renderSection(type);
+      updatePreview();
+      save();
+    });
+    enableSortables(container);
+  }
+
+  /* ---------- drag sort ---------- */
+  function enableSortables(container) {
+    container = container instanceof Event ? container.target : container;
+    if (!container.classList.contains('sortable')) return;
+    new Sortable(container, {
+      animation: 150,
+      onEnd: e => {
+        const arr = state[e.target.dataset.arr || e.target.id.split('-')[0]];
+        const moved = arr.splice(e.oldIndex, 1)[0];
+        arr.splice(e.newIndex, 0, moved);
         updatePreview();
-        
-        // Add default empty items if none exist
-        if (educationContainer.children.length === 0) addEducation();
-        if (experienceContainer.children.length === 0) addExperience();
-        if (projectsContainer.children.length === 0) addProject();
-        
-        showWelcomeMessage();
+        save();
+      }
+    });
+  }
+
+  /* ---------- preview ---------- */
+  function updatePreview() {
+    readFormToState();
+    const tpl = templateSelect.value;
+    preview.innerHTML = templatesCompiled[tpl](state);
+  }
+  const templatesCompiled = {
+    classic: (s) => classicTpl(s),
+    modern: (s) => modernTpl(s),
+    minimal: (s) => minimalTpl(s)
+  };
+  function classicTpl(s) {
+    return `
+      <div class="portfolio-header">
+        ${s.profileImage ? `<img src="${s.profileImage}" class="profile-image">` : '<div class="profile-image empty"><i class="fas fa-user"></i></div>'}
+        <h1>${s.fullName || 'Your Name'}</h1>
+        <h2>${s.professionalTitle || 'Title'}</h2>
+      </div>
+      ${s.bio ? `<div class="section-title">About</div><p>${s.bio}</p>` : ''}
+      ${s.skills.length ? `<div class="section-title">Skills</div><div class="skills-list">${s.skills.map(sk => `<span class="skill-tag">${sk}</span>`).join('')}</div>` : ''}
+      ${s.education.length ? `<div class="section-title">Education</div>${s.education.map(e => `<div class="timeline-item"><h3>${e.school}</h3><div class="date">${e.degree} | ${e.year}</div></div>`).join('')}` : ''}
+      ${s.experience.length ? `<div class="section-title">Experience</div>${s.experience.map(e => `<div class="timeline-item"><h3>${e.role} @ ${e.company}</h3><div class="date">${e.year}</div><p>${e.description}</p></div>`).join('')}` : ''}
+      ${s.projects.length ? `<div class="section-title">Projects</div><div class="projects-grid">${s.projects.map(p => `<div class="project-card"><h3>${p.title}</h3><p>${p.description}</p>${p.link ? `<a href="${p.link}" target="_blank" class="project-link">View →</a>` : ''}</div></div>`).join('')}` : ''}
+      ${(s.contact.github || s.contact.linkedin || s.contact.email || s.contact.website) ? `<div class="section-title">Contact</div><div class="contact-list">${Object.entries(s.contact).filter(([k,v])=>v).map(([k,v])=>`<div class="contact-item"><i class="fab fa-${k==='email'?'envelope':k}"></i><a href="${k==='email'?'mailto:':''}${v}">${k}</a></div>`).join('')}</div>` : ''}
+    `;
+  }
+  function modernTpl(s) {
+    return `
+      <div class="portfolio-header" style="display:flex;gap:1rem;align-items:center;">
+        ${s.profileImage ? `<img src="${s.profileImage}" class="profile-image" style="width:80px;height:80px;">` : ''}
+        <div>
+          <h1 style="margin:0">${s.fullName}</h1>
+          <h2 style="margin:0;font-size:1rem;color:var(--secondary)">${s.professionalTitle}</h2>
+          <p style="margin:.25rem 0 0;font-size:.9rem;">${s.bio}</p>
+        </div>
+      </div>
+      <hr>
+      ${s.skills.length ? `<div class="skills-list" style="margin-bottom:1rem">${s.skills.map(sk=>`<span class="skill-tag">${sk}</span>`).join('')}</div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1rem">
+        <div>
+          <div class="section-title">Experience</div>
+          ${s.experience.map(e=>`<div><strong>${e.role}</strong> @ ${e.company}<br><small>${e.year}</small><br>${e.description}</div>`).join('<hr>')}
+        </div>
+        <div>
+          <div class="section-title">Education</div>
+          ${s.education.map(e=>`<div><strong>${e.degree}</strong> — ${e.school}<br><small>${e.year}</small></div>`).join('<hr>')}
+          <div class="section-title" style="margin-top:1rem">Projects</div>
+          ${s.projects.map(p=>`<div><strong>${p.title}</strong><br><small>${p.description}</small>${p.link ? `<br><a href="${p.link}" target="_blank">Link</a>` : ''}</div>`).join('<hr>')}
+        </div>
+      </div>
+    `;
+  }
+  function minimalTpl(s) {
+    return `
+      <div class="portfolio-header" style="border-bottom:1px solid var(--gray);padding-bottom:1rem">
+        <h1 style="margin:0">${s.fullName}</h1>
+        <p style="margin:0;color:var(--secondary)">${s.professionalTitle}</p>
+      </div>
+      <div style="margin:1rem 0">${s.bio}</div>
+      ${s.skills.length ? `<p><strong>Skills:</strong> ${s.skills.join(', ')}</p>` : ''}
+      ${s.experience.length ? `<h3>Experience</h3><ul>${s.experience.map(e=>`<li><strong>${e.role}</strong> @ ${e.company} (${e.year})<br>${e.description}</li>`).join('')}</ul>` : ''}
+      ${s.education.length ? `<h3>Education</h3><ul>${s.education.map(e=>`<li>${e.degree} — ${e.school} (${e.year})</li>`).join('')}</ul>` : ''}
+      ${s.projects.length ? `<h3>Projects</h3><ul>${s.projects.map(p=>`<li><strong>${p.title}</strong> — ${p.description}${p.link ? ` <a href="${p.link}">Link</a>` : ''}</li>`).join('')}</ul>` : ''}
+    `;
+  }
+
+  /* ---------- helpers ---------- */
+  function readFormToState() {
+    state.fullName = $('#full-name').value;
+    state.professionalTitle = $('#professional-title').value;
+    state.bio = $('#bio').value;
+    state.contact = { github: $('#github').value, linkedin: $('#linkedin').value, email: $('#email').value, website: $('#website').value };
+    $$('.education-item').forEach((el, idx) => {
+      state.education[idx] = { school: $('.school', el).value, degree: $('.degree', el).value, year: $('.year', el).value };
+    });
+    $$('.experience-item').forEach((el, idx) => {
+      state.experience[idx] = { company: $('.company', el).value, role: $('.role', el).value, year: $('.year', el).value, description: $('.description', el).value };
+    });
+    $$('.project-item').forEach((el, idx) => {
+      state.projects[idx] = { title: $('.title', el).value, description: $('.description', el).value, link: $('.link', el).value };
+    });
+  }
+  function populateForm() {
+    $('#full-name').value = state.fullName;
+    $('#professional-title').value = state.professionalTitle;
+    $('#bio').value = state.bio;
+    $('#github').value = state.contact.github;
+    $('#linkedin').value = state.contact.linkedin;
+    $('#email').value = state.contact.email;
+    $('#website').value = state.contact.website;
+    renderSkills();
+    renderSection('education');
+    renderSection('experience');
+    renderSection('project');
+    if (state.profileImage) updateImagePreview(state.profileImage);
+  }
+
+  /* ---------- image ---------- */
+  function handleImageUrl() {
+    state.profileImage = $('#profile-image-url').value;
+    updateImagePreview(state.profileImage);
+    save();
+  }
+  function handleUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { state.profileImage = ev.target.result; updateImagePreview(state.profileImage); save(); };
+    reader.readAsDataURL(file);
+  }
+  function updateImagePreview(src) {
+    const box = $('#image-preview');
+    box.classList.toggle('empty', !src);
+    box.innerHTML = src ? `<img src="${src}">` : '<i class="fas fa-user"></i>';
+  }
+
+  /* ---------- storage ---------- */
+  function save() { localStorage.setItem('portfolio', JSON.stringify(state)); }
+  function exportJSON() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'portfolio.json'; a.click(); URL.revokeObjectURL(url);
+  }
+  function importJSON(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { state = JSON.parse(ev.target.result); populateForm(); updatePreview(); save(); };
+    reader.readAsText(file);
+  }
+  function downloadHTML() {
+    const tpl = templateSelect.value;
+    const html = `<!doctype html><title>${state.fullName || 'Portfolio'}</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>${document.querySelector('style').innerText}</style>
+<body data-theme="${state.settings.theme}">${templatesCompiled[tpl](state)}</body>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `${state.fullName || 'portfolio'}.html`; a.click();
+  }
+  function reset() {
+    if (!confirm('Reset everything?')) return;
+    localStorage.removeItem('portfolio');
+    location.reload();
+  }
+
+  /* ---------- debounce ---------- */
+  function debounce(fn, wait) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
+  }
+
+  /* ---------- sortable (tiny, no lib) ---------- */
+  class Sortable {
+    constructor(el, opts) {
+      this.el = el;
+      this.opts = opts;
+      this.el.addEventListener('dragstart', e => { this.dragSrc = e.target; e.dataTransfer.effectAllowed = 'move'; });
+      this.el.addEventListener('dragover', e => { e.preventDefault(); });
+      this.el.addEventListener('drop', e => {
+        e.preventDefault();
+        if (e.target === this.dragSrc) return;
+        const srcIdx = [...this.el.children].indexOf(this.dragSrc);
+        const dstIdx = [...this.el.children].indexOf(e.target.closest('.sort-item') || e.target);
+        if (this.opts.onEnd) this.opts.onEnd({ oldIndex: srcIdx, newIndex: dstIdx });
+      });
     }
-    
-    // =====================
-    // Event Listeners Setup
-    // =====================
-    function setupEventListeners() {
-        // Theme switching
-        themeSwitcher.addEventListener('click', handleThemeSwitch);
-        
-        // Layout style change
-        layoutStyleSelect.addEventListener('change', updatePreview);
-        
-        // Form inputs
-        portfolioForm.addEventListener('input', debounce(updatePreview, 300));
-        
-        // Profile image handling
-        profileImageUrlInput.addEventListener('input', handleImageUrlInput);
-        profileImageUploadInput.addEventListener('change', handleImageUpload);
-        
-        // Skills handling
-        addSkillBtn.addEventListener('click', addSkill);
-        skillsInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addSkill();
-            }
-        });
-        
-        // Add sections
-        addEducationBtn.addEventListener('click', addEducation);
-        addExperienceBtn.addEventListener('click', addExperience);
-        addProjectBtn.addEventListener('click', addProject);
-        
-        // Remove buttons (event delegation)
-        educationContainer.addEventListener('click', handleEducationRemove);
-        experienceContainer.addEventListener('click', handleExperienceRemove);
-        projectsContainer.addEventListener('click', handleProjectRemove);
-        
-        // Action buttons
-        resetBtn.addEventListener('click', resetForm);
-        saveBtn.addEventListener('click', saveToLocalStorage);
-        exportJsonBtn.addEventListener('click', exportToJson);
-        downloadBtn.addEventListener('click', downloadPortfolio);
-        
-        // Import JSON
-        jsonImportInput.addEventListener('change', importFromJson);
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', handleKeyboardShortcuts);
-    }
-    
-    // =================
-    // Core Functionality
-    // =================
-    
-    function handleThemeSwitch(e) {
-        if (e.target.classList.contains('theme-btn')) {
-            const theme = e.target.dataset.theme;
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('portfolio-theme', theme);
-        }
-    }
-    
-    function handleImageUrlInput() {
-        if (profileImageUrlInput.value) {
-            profileImage = profileImageUrlInput.value;
-            updateImagePreview();
-            updatePreview();
-        }
-    }
-    
-    function handleImageUpload(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                profileImage = event.target.result;
-                profileImageUrlInput.value = '';
-                updateImagePreview();
-                updatePreview();
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-    
-    function handleEducationRemove(e) {
-        if (e.target.classList.contains('remove-education')) {
-            e.target.closest('.education-item').remove();
-            updatePreview();
-        }
-    }
-    
-    function handleExperienceRemove(e) {
-        if (e.target.classList.contains('remove-experience')) {
-            e.target.closest('.experience-item').remove();
-            updatePreview();
-        }
-    }
-    
-    function handleProjectRemove(e) {
-        if (e.target.classList.contains('remove-project')) {
-            e.target.closest('.project-item').remove();
-            updatePreview();
-        }
-    }
-    
-    function handleKeyboardShortcuts(e) {
-        // Ctrl+S to save
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            saveToLocalStorage();
-        }
-        
-        // Ctrl+E to export
-        if (e.ctrlKey && e.key === 'e') {
-            e.preventDefault();
-            exportToJson();
-        }
-        
-        // Ctrl+D to download
-        if (e.ctrlKey && e.key === 'd') {
-            e.preventDefault();
-            downloadPortfolio();
-        }
-    }
-    
-    // ====================
-    // Form Data Management
-    // ====================
-    
-    function getFormData() {
-        return {
-            fullName: fullNameInput.value,
-            professionalTitle: professionalTitleInput.value,
-            bio: bioInput.value,
-            profileImage: profileImage,
-            skills: [...skills],
-            education: getEducationData(),
-            experience: getExperienceData(),
-            projects: getProjectsData(),
-            contact: {
-                github: githubInput.value,
-                linkedin: linkedinInput.value,
-                email: emailInput.value,
-                website: websiteInput.value
-            },
-            settings: {
-                theme: document.documentElement.getAttribute('data-theme') || 'light',
-                layoutStyle: layoutStyleSelect.value
-            }
-        };
-    }
-    
-    function getEducationData() {
-        return Array.from(document.querySelectorAll('.education-item')).map(item => ({
-            school: item.querySelector('.education-school').value,
-            degree: item.querySelector('.education-degree').value,
-            year: item.querySelector('.education-year').value
-        }));
-    }
-    
-    function getExperienceData() {
-        return Array.from(document.querySelectorAll('.experience-item')).map(item => ({
-            company: item.querySelector('.experience-company').value,
-            role: item.querySelector('.experience-role').value,
-            year: item.querySelector('.experience-year').value,
-            description: item.querySelector('.experience-description').value
-        }));
-    }
-    
-    function getProjectsData() {
-        return Array.from(document.querySelectorAll('.project-item')).map(item => ({
-            title: item.querySelector('.project-title').value,
-            description: item.querySelector('.project-description').value,
-            link: item.querySelector('.project-link').value
-        }));
-    }
-    
-    function populateForm(data) {
-        // Basic info
-        fullNameInput.value = data.fullName || '';
-        professionalTitleInput.value = data.professionalTitle || '';
-        bioInput.value = data.bio || '';
-        
-        // Profile image
-        if (data.profileImage) {
-            profileImage = data.profileImage;
-            if (data.profileImage.startsWith('data:')) {
-                profileImageUrlInput.value = '';
-            } else {
-                profileImageUrlInput.value = data.profileImage;
-            }
-            updateImagePreview();
-        }
-        
-        // Skills
-        skills = data.skills || [];
-        renderSkills();
-        
-        // Education
-        educationContainer.innerHTML = '';
-        (data.education || []).forEach(edu => {
-            addEducation();
-            const lastItem = educationContainer.lastElementChild;
-            lastItem.querySelector('.education-school').value = edu.school || '';
-            lastItem.querySelector('.education-degree').value = edu.degree || '';
-            lastItem.querySelector('.education-year').value = edu.year || '';
-        });
-        
-        // Experience
-        experienceContainer.innerHTML = '';
-        (data.experience || []).forEach(exp => {
-            addExperience();
-            const lastItem = experienceContainer.lastElementChild;
-            lastItem.querySelector('.experience-company').value = exp.company || '';
-            lastItem.querySelector('.experience-role').value = exp.role || '';
-            lastItem.querySelector('.experience-year').value = exp.year || '';
-            lastItem.querySelector('.experience-description').value = exp.description || '';
-        });
-        
-        // Projects
-        projectsContainer.innerHTML = '';
-        (data.projects || []).forEach(proj => {
-            addProject();
-            const lastItem = projectsContainer.lastElementChild;
-            lastItem.querySelector('.project-title').value = proj.title || '';
-            lastItem.querySelector('.project-description').value = proj.description || '';
-            lastItem.querySelector('.project-link').value = proj.link || '';
-        });
-        
-        // Contact
-        githubInput.value = data.contact?.github || '';
-        linkedinInput.value = data.contact?.linkedin || '';
-        emailInput.value = data.contact?.email || '';
-        websiteInput.value = data.contact?.website || '';
-        
-        // Settings
-        if (data.settings) {
-            document.documentElement.setAttribute('data-theme', data.settings.theme || 'light');
-            layoutStyleSelect.value = data.settings.layoutStyle || 'grid';
-        }
-    }
-    
-    // =================
-    // Skills Management
-    // =================
-    
-    function addSkill() {
-        const skillText = skillsInput.value.trim();
-        if (skillText && !skills.includes(skillText)) {
-            skills.push(skillText);
-            rememberSkill(skillText);
-            renderSkills();
-            skillsInput.value = '';
-            updatePreview();
-        }
-    }
-    
-    function removeSkill(skill) {
-        skills = skills.filter(s => s !== skill);
-        renderSkills();
+  }
+  function enableSortables(container) {
+    if (!container.classList.contains('sortable') && !container.classList.contains('sort-item')) return;
+    const arr = container.id.split('-')[0];
+    new Sortable(container, {
+      onEnd: e => {
+        const list = state[arr];
+        const moved = list.splice(e.oldIndex, 1)[0];
+        list.splice(e.newIndex, 0, moved);
         updatePreview();
-    }
-    
-    function renderSkills() {
-        skillsTagsContainer.innerHTML = '';
-        skills.forEach(skill => {
-            const tag = document.createElement('div');
-            tag.className = 'tag';
-            tag.innerHTML = `
-                ${skill}
-                <button class="tag-remove" data-skill="${skill}">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            skillsTagsContainer.appendChild(tag);
-            
-            // Add event listener to remove button
-            tag.querySelector('.tag-remove').addEventListener('click', () => removeSkill(skill));
-        });
-    }
-    
-    function rememberSkill(skill) {
-        const savedSkills = JSON.parse(localStorage.getItem('suggested-skills') || '[]');
-        if (!savedSkills.includes(skill)) {
-            savedSkills.push(skill);
-            localStorage.setItem('suggested-skills', JSON.stringify(savedSkills));
-        }
-    }
-    
-    // ==================
-    // Section Management
-    // ==================
-    
-    function addEducation() {
-        const educationItem = document.createElement('div');
-        educationItem.className = 'education-item';
-        educationItem.innerHTML = `
-            <div class="form-row">
-                <div class="form-control">
-                    <label>School*</label>
-                    <input type="text" class="education-school" required>
-                </div>
-                <div class="form-control">
-                    <label>Degree*</label>
-                    <input type="text" class="education-degree" required>
-                </div>
-                <div class="form-control">
-                    <label>Year*</label>
-                    <input type="text" class="education-year" required>
-                </div>
-            </div>
-            <button type="button" class="btn remove-btn remove-education"><i class="fas fa-trash"></i></button>
-        `;
-        educationContainer.appendChild(educationItem);
-    }
-    
-    function addExperience() {
-        const experienceItem = document.createElement('div');
-        experienceItem.className = 'experience-item';
-        experienceItem.innerHTML = `
-            <div class="form-row">
-                <div class="form-control">
-                    <label>Company*</label>
-                    <input type="text" class="experience-company" required>
-                </div>
-                <div class="form-control">
-                    <label>Role*</label>
-                    <input type="text" class="experience-role" required>
-                </div>
-                <div class="form-control">
-                    <label>Year*</label>
-                    <input type="text" class="experience-year" required>
-                </div>
-            </div>
-            <div class="form-control">
-                <label>Description*</label>
-                <textarea class="experience-description" rows="2" required></textarea>
-            </div>
-            <button type="button" class="btn remove-btn remove-experience"><i class="fas fa-trash"></i></button>
-        `;
-        experienceContainer.appendChild(experienceItem);
-    }
-    
-    function addProject() {
-        const projectItem = document.createElement('div');
-        projectItem.className = 'project-item';
-        projectItem.innerHTML = `
-            <div class="form-row">
-                <div class="form-control">
-                    <label>Title*</label>
-                    <input type="text" class="project-title" required>
-                </div>
-                <div class="form-control">
-                    <label>GitHub/Demo Link</label>
-                    <input type="text" class="project-link" placeholder="https://">
-                </div>
-            </div>
-            <div class="form-control">
-                <label>Description*</label>
-                <textarea class="project-description" rows="2" required></textarea>
-            </div>
-            <button type="button" class="btn remove-btn remove-project"><i class="fas fa-trash"></i></button>
-        `;
-        projectsContainer.appendChild(projectItem);
-    }
-    
-    // ===================
-    // Preview Generation
-    // ===================
-    
-    function updatePreview() {
-        const formData = getFormData();
-        const layoutStyle = layoutStyleSelect.value;
-        
-        previewContainer.innerHTML = generatePortfolioHTML(formData, layoutStyle);
-    }
-    
-    function generatePortfolioHTML(data, layoutStyle = 'grid') {
-        // Header section
-        let html = `
-            <div class="portfolio-header">
-                ${data.profileImage ? 
-                    `<div class="profile-image"><img src="${data.profileImage}" alt="${data.fullName || 'Profile Image'}"></div>` : 
-                    '<div class="profile-image"><i class="fas fa-user"></i></div>'
-                }
-                <h1>${data.fullName || 'Your Name'}</h1>
-                <h2>${data.professionalTitle || 'Professional Title'}</h2>
-            </div>
-        `;
-        
-        // About section
-        if (data.bio) {
-            html += `
-                <div class="section-title">About Me</div>
-                <div class="about-section">
-                    <p>${data.bio}</p>
-                </div>
-            `;
-        }
-        
-        // Skills section
-        if (data.skills.length > 0) {
-            html += `
-                <div class="section-title">Skills</div>
-                <div class="skills-section">
-                    <div class="skills-list">
-                        ${data.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Education section
-        if (data.education.length > 0) {
-            html += `
-                <div class="section-title">Education</div>
-                <div class="education-section">
-                    ${data.education.map(edu => `
-                        <div class="timeline-item">
-                            <h3>${edu.school || 'School Name'}</h3>
-                            <div class="date">${edu.degree || 'Degree'} | ${edu.year || 'Year'}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        
-        // Experience section
-        if (data.experience.length > 0) {
-            html += `
-                <div class="section-title">Work Experience</div>
-                <div class="experience-section">
-                    ${data.experience.map(exp => `
-                        <div class="timeline-item">
-                            <h3>${exp.role || 'Role'} at ${exp.company || 'Company'}</h3>
-                            <div class="date">${exp.year || 'Year'}</div>
-                            <p>${exp.description || 'Description'}</p>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        
-        // Projects section
-        if (data.projects.length > 0) {
-            html += `
-                <div class="section-title">Projects</div>
-                <div class="projects-section">
-            `;
-            
-            if (layoutStyle === 'grid') {
-                html += `
-                    <div class="projects-grid">
-                        ${data.projects.map(project => `
-                            <div class="project-card">
-                                <h3>${project.title || 'Project Title'}</h3>
-                                <p>${project.description || 'Project description'}</p>
-                                ${project.link ? `<a href="${ensureHttp(project.link)}" class="project-link" target="_blank"><i class="fas fa-external-link-alt"></i> View Project</a>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else if (layoutStyle === 'card') {
-                html += `
-                    <div class="projects-card">
-                        ${data.projects.map(project => `
-                            <div class="project-card">
-                                <h3>${project.title || 'Project Title'}</h3>
-                                <p>${project.description || 'Project description'}</p>
-                                ${project.link ? `<a href="${ensureHttp(project.link)}" class="project-link" target="_blank"><i class="fas fa-external-link-alt"></i> View Project</a>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else { // list
-                html += `
-                    <div class="projects-list">
-                        ${data.projects.map(project => `
-                            <div class="project-card">
-                                <h3>${project.title || 'Project Title'}</h3>
-                                <p>${project.description || 'Project description'}</p>
-                                ${project.link ? `<a href="${ensureHttp(project.link)}" class="project-link" target="_blank"><i class="fas fa-external-link-alt"></i> View Project</a>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-            
-            html += `</div>`;
-        }
-        
-        // Contact section
-        if (data.contact.github || data.contact.linkedin || data.contact.email || data.contact.website) {
-            html += `
-                <div class="section-title">Contact</div>
-                <div class="contact-section">
-                    <div class="contact-list">
-                        ${data.contact.github ? `
-                            <div class="contact-item">
-                                <i class="fab fa-github"></i>
-                                <a href="${ensureHttp(data.contact.github)}" target="_blank">GitHub</a>
-                            </div>
-                        ` : ''}
-                        ${data.contact.linkedin ? `
-                            <div class="contact-item">
-                                <i class="fab fa-linkedin"></i>
-                                <a href="${ensureHttp(data.contact.linkedin)}" target="_blank">LinkedIn</a>
-                            </div>
-                        ` : ''}
-                        ${data.contact.email ? `
-                            <div class="contact-item">
-                                <i class="fas fa-envelope"></i>
-                                <a href="mailto:${data.contact.email}">Email</a>
-                            </div>
-                        ` : ''}
-                        ${data.contact.website ? `
-                            <div class="contact-item">
-                                <i class="fas fa-globe"></i>
-                                <a href="${ensureHttp(data.contact.website)}" target="_blank">Website</a>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }
-        
-        return html;
-    }
-    
-    // =====================
-    // Data Storage & Export
-    // =====================
-    
-    function saveToLocalStorage() {
-        if (validateForm()) {
-            const formData = getFormData();
-            localStorage.setItem('portfolio-data', JSON.stringify(formData));
-            showAlert('Data saved successfully!', 'success');
-        } else {
-            showAlert('Please fill in all required fields', 'danger');
-        }
-    }
-    
-    function loadFromLocalStorage() {
-        // Load theme
-        const savedTheme = localStorage.getItem('portfolio-theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        } else {
-            // Default to system preference
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-        }
-        
-        // Load form data
-        const savedData = localStorage.getItem('portfolio-data');
-        if (savedData) {
-            try {
-                const formData = JSON.parse(savedData);
-                populateForm(formData);
-            } catch (e) {
-                console.error('Error loading saved data:', e);
-            }
-        }
-    }
-    
-    function exportToJson() {
-        const formData = getFormData();
-        const jsonStr = JSON.stringify(formData, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'portfolio-data.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showAlert('JSON exported successfully!', 'success');
-    }
-    
-    function importFromJson(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const formData = JSON.parse(event.target.result);
-                populateForm(formData);
-                updatePreview();
-                showAlert('JSON imported successfully!', 'success');
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                showAlert('Error importing JSON. Please check the file format.', 'danger');
-            }
-        };
-        reader.readAsText(file);
-        
-        // Reset the input to allow re-importing the same file
-        e.target.value = '';
-    }
-    
-    // =====================
-    // Portfolio Download
-    // =====================
-    
-    function downloadPortfolio() {
-        if (!validateForm()) {
-            showAlert('Please fill in all required fields before downloading', 'danger');
-            return;
-        }
-        
-        const formData = getFormData();
-        const layoutStyle = layoutStyleSelect.value;
-        const portfolioHTML = generatePortfolioHTML(formData, layoutStyle);
-        
-        // Create complete HTML document
-        const htmlDoc = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${formData.fullName || 'My Portfolio'}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        ${document.querySelector('style').textContent}
-        
-        /* Override some styles for the standalone portfolio */
-        body {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .portfolio-preview {
-            box-shadow: none;
-            padding: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="portfolio-preview">
-        ${portfolioHTML}
-    </div>
-</body>
-</html>`;
-        
-        const blob = new Blob([htmlDoc], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${formData.fullName || 'portfolio'}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showAlert('Portfolio downloaded successfully!', 'success');
-    }
-    
-    // ==============
-    // Form Handling
-    // ==============
-    
-    function resetForm() {
-        if (confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
-            portfolioForm.reset();
-            skills = [];
-            profileImage = null;
-            educationContainer.innerHTML = '';
-            experienceContainer.innerHTML = '';
-            projectsContainer.innerHTML = '';
-            skillsTagsContainer.innerHTML = '';
-            imagePreview.innerHTML = '<i class="fas fa-user"></i>';
-            imagePreview.classList.add('empty');
-            
-            // Add default empty items
-            addEducation();
-            addExperience();
-            addProject();
-            
-            updatePreview();
-            showAlert('Form reset successfully!', 'success');
-        }
-    }
-    
-    function validateForm() {
-        let isValid = true;
-        
-        // Validate required fields
-        if (!fullNameInput.value.trim()) {
-            markInvalid(fullNameInput);
-            isValid = false;
-        }
-        
-        if (!professionalTitleInput.value.trim()) {
-            markInvalid(professionalTitleInput);
-            isValid = false;
-        }
-        
-        if (!bioInput.value.trim()) {
-            markInvalid(bioInput);
-            isValid = false;
-        }
-        
-        // Validate education items
-        document.querySelectorAll('.education-item').forEach(item => {
-            if (!item.querySelector('.education-school').value.trim() || 
-                !item.querySelector('.education-degree').value.trim() || 
-                !item.querySelector('.education-year').value.trim()) {
-                markInvalid(item);
-                isValid = false;
-            }
-        });
-        
-        // Validate experience items
-        document.querySelectorAll('.experience-item').forEach(item => {
-            if (!item.querySelector('.experience-company').value.trim() || 
-                !item.querySelector('.experience-role').value.trim() || 
-                !item.querySelector('.experience-year').value.trim() || 
-                !item.querySelector('.experience-description').value.trim()) {
-                markInvalid(item);
-                isValid = false;
-            }
-        });
-        
-        // Validate project items
-        document.querySelectorAll('.project-item').forEach(item => {
-            if (!item.querySelector('.project-title').value.trim() || 
-                !item.querySelector('.project-description').value.trim()) {
-                markInvalid(item);
-                isValid = false;
-            }
-        });
-        
-        return isValid;
-    }
-    
-    function markInvalid(element) {
-        element.classList.add('invalid');
-        setTimeout(() => element.classList.remove('invalid'), 2000);
-    }
-    
-    // ===================
-    // Image Handling
-    // ===================
-    
-    function updateImagePreview() {
-        imagePreview.innerHTML = '';
-        
-        if (profileImage) {
-            const img = document.createElement('img');
-            img.src = profileImage;
-            imagePreview.appendChild(img);
-            imagePreview.classList.remove('empty');
-        } else {
-            imagePreview.innerHTML = '<i class="fas fa-user"></i>';
-            imagePreview.classList.add('empty');
-        }
-    }
-    
-    function setupDragAndDrop() {
-        const dropArea = imagePreview;
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight() {
-            dropArea.classList.add('highlight');
-        }
-        
-        function unhighlight() {
-            dropArea.classList.remove('highlight');
-        }
-        
-        dropArea.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files.length > 0) {
-                handleFiles(files);
-            }
-        }
-        
-        function handleFiles(files) {
-            const file = files[0];
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    profileImage = event.target.result;
-                    profileImageUrlInput.value = '';
-                    profileImageUploadInput.files = files;
-                    updateImagePreview();
-                    updatePreview();
-                };
-                reader.readAsDataURL(file);
-            } else {
-                showAlert('Please select an image file', 'danger');
-            }
-        }
-    }
-    
-    // ===================
-    // Utility Functions
-    // ===================
-    
-    function debounce(func, wait, immediate = false) {
-        let timeout;
-        return function() {
-            const context = this, args = arguments;
-            const later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            const callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
-        };
-    }
-    
-    function ensureHttp(url) {
-        if (!url) return '';
-        return url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
-    }
-    
-    function showAlert(message, type = 'info') {
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type}`;
-        alert.textContent = message;
-        alert.style.position = 'fixed';
-        alert.style.bottom = '20px';
-        alert.style.right = '20px';
-        alert.style.padding = '10px 20px';
-        alert.style.borderRadius = '5px';
-        alert.style.backgroundColor = 
-            type === 'success' ? '#28a745' : 
-            type === 'danger' ? '#dc3545' : 
-            type === 'warning' ? '#ffc107' : '#17a2b8';
-        alert.style.color = 'white';
-        alert.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-        alert.style.zIndex = '1000';
-        alert.style.animation = 'fadeIn 0.3s';
-        
-        document.body.appendChild(alert);
-        
-        setTimeout(() => {
-            alert.style.animation = 'fadeOut 0.3s';
-            setTimeout(() => {
-                document.body.removeChild(alert);
-            }, 300);
-        }, 3000);
-    }
-    
-    function setupSystemThemeListener() {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            if (!localStorage.getItem('portfolio-theme')) {
-                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-            }
-        });
-    }
-    
-    function showWelcomeMessage() {
-        setTimeout(() => {
-            showAlert('Welcome to AutoPortfolio Pro! Start filling out your information to generate your portfolio.', 'info');
-        }, 1000);
-    }
-    
-    // =============
-    // Initialize App
-    // =============
-    init();
-});
+        save();
+      }
+    });
+  }
+})();
