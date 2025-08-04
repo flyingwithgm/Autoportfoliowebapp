@@ -1,12 +1,5 @@
-/**
- * AutoPortfolio Pro – fixed vanilla JS
- * Compatible with the original HTML / CSS you posted.
- * Adds: 3 templates, print, custom theme, skill suggest, drag-sort.
- * NO external libraries.
- */
-
-document.addEventListener('DOMContentLoaded', () => {
-  /* ---------- util ---------- */
+/* AutoPortfolio Pro – final vanilla JS */
+(() => {
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
   const debounce = (fn, wait) => {
@@ -14,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), wait); };
   };
 
-  /* ---------- state ---------- */
   let state = JSON.parse(localStorage.getItem('portfolio')) || {
     fullName: '', professionalTitle: '', bio: '', profileImage: '',
     skills: [], education: [], experience: [], projects: [],
@@ -22,12 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     settings: { theme: 'light', template: 'classic' }
   };
 
-  /* ---------- element refs ---------- */
   const preview = $('#portfolio-preview');
-  const templateSelect = $('#layout-style'); // original select id
-  const themeBtns = $$('.theme-btn');
+  const templateSelect = $('#layout-style');
 
-  /* ---------- init ---------- */
   init();
   function init() {
     populateForm();
@@ -35,10 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePreview();
     loadSuggestedSkills();
     applyTheme(state.settings.theme);
-    ensureDefaultSections();
+    ensureDefaults();
   }
 
-  /* ---------- theme ---------- */
+  /* theme */
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     state.settings.theme = theme;
@@ -53,38 +42,30 @@ document.addEventListener('DOMContentLoaded', () => {
     save();
   }
 
-  /* ---------- events ---------- */
+  /* events */
   function attachEvents() {
     $('#portfolio-form').addEventListener('input', debounce(updatePreview, 200));
     templateSelect.addEventListener('change', updatePreview);
 
     /* theme buttons */
-    themeBtns.forEach(btn => btn.onclick = e => {
+    $$('.theme-btn').forEach(btn => btn.onclick = e => {
       const theme = e.currentTarget.dataset.theme;
       if (theme === 'custom') $('#custom-theme-panel').classList.toggle('hidden');
       else { $('#custom-theme-panel').classList.add('hidden'); applyTheme(theme); }
     });
     $('#apply-custom').onclick = applyCustomTheme;
 
-    /* skill add / remove */
+    /* skills */
     $('#add-skill-btn').onclick = addSkill;
     $('#skills-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } });
-    $('#skills-tags').addEventListener('click', e => {
-      if (e.target.classList.contains('tag-remove')) {
-        const idx = +e.target.dataset.idx;
-        state.skills.splice(idx, 1);
-        renderSkills();
-        updatePreview();
-        save();
-      }
-    });
+    $('#skills-tags').addEventListener('click', e => { if (e.target.classList.contains('tag-remove')) removeSkill(+e.target.dataset.idx); });
 
-    /* add section buttons */
+    /* add sections */
     $('#add-education-btn').onclick = () => addSection('education');
     $('#add-experience-btn').onclick = () => addSection('experience');
     $('#add-project-btn').onclick = () => addSection('project');
 
-    /* remove delegated */
+    /* remove buttons (delegated) */
     $$('#education-container, #experience-container, #projects-container').forEach(container => {
       container.addEventListener('click', e => {
         const btn = e.target.closest('.remove-btn');
@@ -99,11 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    /* image */
+    /* image + action buttons */
     $('#profile-image-upload').addEventListener('change', handleUpload);
     $('#profile-image-url').addEventListener('input', handleImageUrl);
-
-    /* action buttons */
     $('#reset-btn').onclick = reset;
     $('#save-btn').onclick = save;
     $('#export-json-btn').onclick = exportJSON;
@@ -112,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#json-import').addEventListener('change', importJSON);
   }
 
-  /* ---------- skills ---------- */
+  /* skills */
   function addSkill() {
     const val = $('#skills-input').value.trim();
     if (val && !state.skills.includes(val)) {
@@ -124,6 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
       save();
     }
   }
+  function removeSkill(idx) {
+    state.skills.splice(idx, 1);
+    renderSkills();
+    updatePreview();
+    save();
+  }
   function renderSkills() {
     $('#skills-tags').innerHTML = state.skills.map((sk, i) =>
       `<span class="tag">${sk}<button class="tag-remove" data-idx="${i}"><i class="fas fa-times"></i></button></span>`
@@ -134,11 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!list.includes(skill)) { list.push(skill); localStorage.setItem('suggested-skills', JSON.stringify(list)); loadSuggestedSkills(); }
   }
   function loadSuggestedSkills() {
-    const list = JSON.parse(localStorage.getItem('suggested-skills') || '[]');
-    $('#skills-datalist').innerHTML = list.map(s => `<option value="${s}">`).join('');
+    $('#skills-datalist').innerHTML = JSON.parse(localStorage.getItem('suggested-skills') || '[]').map(s => `<option value="${s}">`).join('');
   }
 
-  /* ---------- sections ---------- */
+  /* sections */
   function addSection(type) {
     const item = type === 'education' ? { school: '', degree: '', year: '' } :
                  type === 'experience' ? { company: '', role: '', year: '', description: '' } :
@@ -178,16 +162,16 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `).join('');
   }
-  function ensureDefaultSections() {
+  function ensureDefaults() {
     if (state.education.length === 0) addSection('education');
     if (state.experience.length === 0) addSection('experience');
     if (state.projects.length === 0) addSection('project');
   }
 
-  /* ---------- preview ---------- */
+  /* preview */
   function updatePreview() {
     readFormToState();
-    const tpl = $('#template-style').value; // original id
+    const tpl = templateSelect.value;
     preview.innerHTML = templates[tpl](state);
   }
   const templates = {
@@ -202,14 +186,14 @@ document.addEventListener('DOMContentLoaded', () => {
       ${s.education.length ? `<div class="section-title">Education</div>${s.education.map(e => `<div class="timeline-item"><h3>${e.school}</h3><div class="date">${e.degree} | ${e.year}</div></div>`).join('')}` : ''}
       ${s.experience.length ? `<div class="section-title">Work Experience</div>${s.experience.map(e => `<div class="timeline-item"><h3>${e.role} at ${e.company}</h3><div class="date">${e.year}</div><p>${e.description}</p></div>`).join('')}` : ''}
       ${s.projects.length ? `<div class="section-title">Projects</div><div class="projects-grid">${s.projects.map(p => `<div class="project-card"><h3>${p.title}</h3><p>${p.description}</p>${p.link ? `<a href="${p.link}" class="project-link" target="_blank"><i class="fas fa-external-link-alt"></i> View Project</a>` : ''}</div>`).join('')}</div>` : ''}
-      ${(s.contact.github || s.contact.linkedin || s.contact.email || s.contact.website) ? `<div class="section-title">Contact</div><div class="contact-list">${Object.entries(s.contact).filter(([k,v])=>v).map(([k,v])=>`<div class="contact-item"><i class="fab fa-${k==='email'?'envelope':k}"></i><a href="${k==='email'?'mailto':''}${v}" target="_blank">${k.charAt(0).toUpperCase() + k.slice(1)}</a></div>`).join('')}</div>` : ''}
+      ${(s.contact.github || s.contact.linkedin || s.contact.email || s.contact.website) ? `<div class="section-title">Contact</div><div class="contact-list">${Object.entries(s.contact).filter(([,v])=>v).map(([k,v])=>`<div class="contact-item"><i class="fab fa-${k==='email'?'envelope':k}"></i><a href="${k==='email'?'mailto':''}${v}" target="_blank">${k.charAt(0).toUpperCase() + k.slice(1)}</a></div>`).join('')}</div>` : ''}
     `,
     modern: s => `
       <div style="display:flex;gap:1rem;align-items:center;border-bottom:1px solid var(--gray-medium);padding-bottom:1rem">
         ${s.profileImage ? `<img src="${s.profileImage}" class="profile-image" style="width:80px;height:80px">` : ''}
         <div>
           <h1 style="margin:0">${s.fullName || 'Name'}</h1>
-          <p style="margin:0;color:var(--secondary)">${s.professionalTitle || 'Title'}</p>
+          <p style="margin:0;color:var(--secondary-color)">${s.professionalTitle || 'Title'}</p>
           <p style="margin:.5rem 0 0;font-size:.9rem">${s.bio}</p>
         </div>
       </div>
@@ -225,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `,
     minimal: s => `
-      <h1 style="border-bottom:1px solid var(--gray);padding-bottom:.5rem">${s.fullName}</h1>
+      <h1 style="border-bottom:1px solid var(--gray-medium);padding-bottom:.5rem">${s.fullName}</h1>
       <p style="margin:.5rem 0">${s.professionalTitle} — ${s.bio}</p>
       ${s.skills.length ? `<p><strong>Skills:</strong> ${s.skills.join(', ')}</p>` : ''}
       <h3>Experience</h3><ul>${s.experience.map(e=>`<li><strong>${e.role}</strong> @ ${e.company} (${e.year})<br>${e.description}</li>`).join('')}</ul>
@@ -234,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `
   };
 
-  /* ---------- form ↔ state ---------- */
+  /* form ↔ state */
   function readFormToState() {
     state.fullName = $('#full-name').value;
     state.professionalTitle = $('#professional-title').value;
@@ -272,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (state.profileImage) updateImagePreview(state.profileImage);
   }
 
-  /* ---------- image ---------- */
+  /* image */
   function handleImageUrl() {
     state.profileImage = $('#profile-image-url').value;
     updateImagePreview(state.profileImage);
@@ -285,8 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.onload = ev => { state.profileImage = ev.target.result; updateImagePreview(state.profileImage); save(); };
     reader.readAsDataURL(file);
   }
+  function updateImagePreview(src) {
+    const box = $('#image-preview');
+    box.classList.toggle('empty', !src);
+    box.innerHTML = src ? `<img src="${src}">` : '<i class="fas fa-user"></i>';
+  }
 
-  /* ---------- storage ---------- */
+  /* storage helpers */
   function save() { localStorage.setItem('portfolio', JSON.stringify(state)); }
   function exportJSON() {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
