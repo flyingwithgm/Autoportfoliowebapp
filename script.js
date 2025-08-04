@@ -10,6 +10,8 @@
  * - Responsive design
  * - LocalStorage persistence
  * - No external dependencies
+ * 
+ * UPDATED: 2025-08-04 – fixed download button so it reliably triggers “Save As”
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -678,20 +680,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // =====================
-    // Portfolio Download
+    // Portfolio Download   ←  FIXED 2025-08-04
     // =====================
-    
     function downloadPortfolio() {
         if (!validateForm()) {
             showAlert('Please fill in all required fields before downloading', 'danger');
             return;
         }
-        
-        const formData = getFormData();
+
+        const formData    = getFormData();
         const layoutStyle = layoutStyleSelect.value;
         const portfolioHTML = generatePortfolioHTML(formData, layoutStyle);
-        
-        // Create complete HTML document
+
         const htmlDoc = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -702,38 +702,32 @@ document.addEventListener('DOMContentLoaded', function() {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         ${document.querySelector('style').textContent}
-        
-        /* Override some styles for the standalone portfolio */
-        body {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .portfolio-preview {
-            box-shadow: none;
-            padding: 0;
-        }
+        body{padding:2rem;max-width:1200px;margin:0 auto;}
     </style>
 </head>
 <body>
-    <div class="portfolio-preview">
-        ${portfolioHTML}
-    </div>
+    <div class="portfolio-preview">${portfolioHTML}</div>
 </body>
 </html>`;
-        
+
         const blob = new Blob([htmlDoc], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        
+        const url  = URL.createObjectURL(blob);
+
+        // Classic download
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `${formData.fullName || 'portfolio'}.html`;
+        a.href     = url;
+        a.download = `${formData.fullName || 'portfolio'}.html}`;
+        a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
+
+        // iOS / Safari fallback
+        if (!window.navigator.msSaveOrOpenBlob && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            window.open(url, '_blank');
+        }
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
         showAlert('Portfolio downloaded successfully!', 'success');
     }
     
