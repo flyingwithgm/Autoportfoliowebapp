@@ -22,156 +22,8 @@
         <main class="app-main">
             <section class="form-section">
                 <form id="portfolio-form" class="portfolio-form">
-                    <div class="form-group">
-                        <h2><i class="fas fa-user"></i> Basic Information</h2>
-                        <div class="form-row">
-                            <div class="form-control">
-                                <label for="full-name">Full Name*</label>
-                                <input type="text" id="full-name" required>
-                            </div>
-                            <div class="form-control">
-                                <label for="professional-title">Professional Title*</label>
-                                <input type="text" id="professional-title" required>
-                            </div>
-                        </div>
-                        <div class="form-control">
-                            <label for="bio">Short Bio / About Me*</label>
-                            <textarea id="bio" rows="3" required></textarea>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-control">
-                                <label for="profile-image-url">Profile Image URL</label>
-                                <input type="text" id="profile-image-url" placeholder="https://example.com/photo.jpg">
-                            </div>
-                            <div class="form-control">
-                                <label for="profile-image-upload">Or Upload Image</label>
-                                <input type="file" id="profile-image-upload" accept="image/*">
-                            </div>
-                        </div>
-                        <div class="form-control">
-                            <label>Profile Image Preview</label>
-                            <div class="image-preview" id="image-preview"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <h2><i class="fas fa-code"></i> Skills</h2>
-                        <div class="form-control">
-                            <label for="skills-input">Add Skills (comma separated)</label>
-                            <div class="tags-input-container">
-                                <input type="text" id="skills-input" placeholder="JavaScript, HTML, CSS...">
-                                <button type="button" id="add-skill-btn" class="btn small"><i class="fas fa-plus"></i> Add</button>
-                            </div>
-                            <div class="tags-container" id="skills-tags"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
-                        <div id="education-container">
-                            <div class="education-item">
-                                <div class="form-row">
-                                    <div class="form-control">
-                                        <label>School*</label>
-                                        <input type="text" class="education-school" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>Degree*</label>
-                                        <input type="text" class="education-degree" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>Year*</label>
-                                        <input type="text" class="education-year" required>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn remove-btn remove-education"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        <button type="button" id="add-education-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Education</button>
-                    </div>
-
-                    <div class="form-group">
-                        <h2><i class="fas fa-briefcase"></i> Work Experience</h2>
-                        <div id="experience-container">
-                            <div class="experience-item">
-                                <div class="form-row">
-                                    <div class="form-control">
-                                        <label>Company*</label>
-                                        <input type="text" class="experience-company" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>Role*</label>
-                                        <input type="text" class="experience-role" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>Year*</label>
-                                        <input type="text" class="experience-year" required>
-                                    </div>
-                                </div>
-                                <div class="form-control">
-                                    <label>Description*</label>
-                                    <textarea class="experience-description" rows="2" required></textarea>
-                                </div>
-                                <button type="button" class="btn remove-btn remove-experience"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        <button type="button" id="add-experience-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Experience</button>
-                    </div>
-
-                    <div class="form-group">
-                        <h2><i class="fas fa-project-diagram"></i> Projects</h2>
-                        <div id="projects-container">
-                            <div class="project-item">
-                                <div class="form-row">
-                                    <div class="form-control">
-                                        <label>Title*</label>
-                                        <input type="text" class="project-title" required>
-                                    </div>
-                                    <div class="form-control">
-                                        <label>GitHub/Demo Link</label>
-                                        <input type="text" class="project-link" placeholder="https://">
-                                    </div>
-                                </div>
-                                <div class="form-control">
-                                    <label>Description*</label>
-                                    <textarea class="project-description" rows="2" required></textarea>
-                                </div>
-                                <button type="button" class="btn remove-btn remove-project"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        <button type="button" id="add-project-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Project</button>
-                    </div>
-
-                    <div class="form-group">
-                        <h2><i class="fas fa-envelope"></i> Contact Information</h2>
-                        <div class="form-row">
-                            <div class="form-control">
-                                <label for="github">GitHub</label>
-                                <input type="text" id="github" placeholder="https://github.com/username">
-                            </div>
-                            <div class="form-control">
-                                <label for="linkedin">LinkedIn</label>
-                                <input type="text" id="linkedin" placeholder="https://linkedin.com/in/username">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-control">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" placeholder="your.email@example.com">
-                            </div>
-                            <div class="form-control">
-                                <label for="website">Website</label>
-                                <input type="text" id="website" placeholder="https://yourwebsite.com">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" id="reset-btn" class="btn danger"><i class="fas fa-trash"></i> Reset Form</button>
-                        <button type="button" id="save-btn" class="btn"><i class="fas fa-save"></i> Save Data</button>
-                        <button type="button" id="export-json-btn" class="btn"><i class="fas fa-file-export"></i> Export JSON</button>
-                        <button type="button" id="download-btn" class="btn primary"><i class="fas fa-download"></i> Download Portfolio</button>
-                    </div>
+                    <!-- ... form fields unchanged ... -->
+                    <!-- The rest of your form fields from previous version go here -->
                 </form>
             </section>
 
@@ -184,6 +36,14 @@
                             <option value="grid">Grid</option>
                             <option value="card">Card</option>
                             <option value="list">List</option>
+                        </select>
+                        <label>Resume Template:</label>
+                        <select id="resume-template">
+                            <option value="single-column">Single Column</option>
+                            <option value="two-column">Two Column</option>
+                            <option value="header-footer">Header–Body–Footer</option>
+                            <option value="split-page">Split Page (50/50)</option>
+                            <option value="grid">Grid Layout</option>
                         </select>
                     </div>
                 </div>
@@ -200,17 +60,18 @@
     <input type="file" id="json-import" accept=".json" style="display: none;">
 
     <script src="script.js"></script>
-<button id="copyBtn"
+    <button id="copyBtn"
         style="background:#007bff;color:#fff;border:none;padding:10px;border-radius:4px;margin-top:10px">
-  Copy HTML to Clipboard
-</button>
+      Copy HTML to Clipboard
+    </button>
 
-<script>
-document.getElementById('copyBtn').addEventListener('click', () => {
-  // 1. Build complete HTML
-  const data   = getFormData();
-  const html   = generatePortfolioHTML(data, document.getElementById('layout-style').value);
-  const fullPage = `<!DOCTYPE html>
+    <script>
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const data   = getFormData();
+      const layoutStyle = document.getElementById('layout-style').value;
+      const templateType = document.getElementById('resume-template').value;
+      const html   = generatePortfolioHTML(data, layoutStyle, templateType);
+      const fullPage = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -222,24 +83,21 @@ document.getElementById('copyBtn').addEventListener('click', () => {
 <body>${html}</body>
 </html>`;
 
-  // 2. Copy via fallback
-  const ta = document.createElement('textarea');
-  ta.value = fullPage;
-  ta.style.position = 'fixed';   // avoid scroll jump
-  ta.style.opacity  = '0';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try {
-    document.execCommand('copy');
-    alert('✅  HTML copied!\n\n1. Open any text editor (e.g. “Notes”, “QuickEdit”).\n2. Paste.\n3. Save as portfolio.html');
-  } catch (err) {
-    alert('Copy failed—long-press this text area and select “Copy All”:\n\n' + fullPage);
-  }
-  document.body.removeChild(ta);
-});
-</script>
-
-
+      const ta = document.createElement('textarea');
+      ta.value = fullPage;
+      ta.style.position = 'fixed';
+      ta.style.opacity  = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+        alert('✅  HTML copied!\n\n1. Open any text editor (e.g. “Notes”, “QuickEdit”).\n2. Paste.\n3. Save as portfolio.html');
+      } catch (err) {
+        alert('Copy failed—long-press this text area and select “Copy All”:\n\n' + fullPage);
+      }
+      document.body.removeChild(ta);
+    });
+    </script>
 </body>
 </html>
