@@ -574,7 +574,6 @@ transition: var(--transition);
 text-decoration: underline;
 }
 
-/* === Resume Templates === */
 .resume-template.single-column {
   width: 100%;
   max-width: 800px;
