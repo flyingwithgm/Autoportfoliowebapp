@@ -158,7 +158,7 @@ background-color: var(--white);
 color: var(--black);
 }
 
-.portfolio-form {
+.portfolio-form { /* Renamed class in HTML, kept for compatibility with old styles */
 display: flex;
 flex-direction: column;
 gap: 1.5rem;
@@ -291,7 +291,9 @@ color: var(--gray-dark);
 
 .education-item,
 .experience-item,
-.project-item {
+.project-item,
+.certification-item, /* Added */
+.language-item {       /* Added */
 background-color: var(--white);
 padding: 1rem;
 border-radius: var(--border-radius);
@@ -375,7 +377,7 @@ gap: 0.5rem;
 flex-wrap: wrap;
 }
 
-.portfolio-preview {
+.portfolio-preview { /* Renamed class in HTML, kept for compatibility with old styles */
 background-color: var(--white);
 border-radius: var(--border-radius);
 box-shadow: var(--box-shadow);
@@ -383,12 +385,12 @@ padding: 2rem;
 min-height: 100%;
 }
 
-.portfolio-header {
+.portfolio-header { /* Kept for compatibility */
 text-align: center;
 margin-bottom: 2rem;
 }
 
-.profile-image {
+.profile-image { /* Kept for compatibility */
 width: 150px;
 height: 150px;
 border-radius: 50%;
@@ -397,26 +399,26 @@ overflow: hidden;
 border: 3px solid var(--primary-color);
 }
 
-.profile-image img {
+.profile-image img { /* Kept for compatibility */
 width: 100%;
 height: 100%;
 object-fit: cover;
 }
 
-.portfolio-header h1 {
+.portfolio-header h1 { /* Kept for compatibility */
 font-size: 2rem;
 color: var(--primary-color);
 margin-bottom: 0.5rem;
 }
 
-.portfolio-header h2 {
+.portfolio-header h2 { /* Kept for compatibility */
 font-size: 1.25rem;
 color: var(--secondary-color);
 font-weight: 400;
 margin-bottom: 1rem;
 }
 
-.section-title {
+.section-title { /* Kept for compatibility */
 font-size: 1.5rem;
 color: var(--primary-color);
 margin-bottom: 1rem;
@@ -424,21 +426,21 @@ padding-bottom: 0.5rem;
 border-bottom: 2px solid var(--primary-color);
 }
 
-.about-section {
+.about-section { /* Kept for compatibility */
 margin-bottom: 2rem;
 }
 
-.skills-section {
+.skills-section { /* Kept for compatibility */
 margin-bottom: 2rem;
 }
 
-.skills-list {
+.skills-list { /* Kept for compatibility */
 display: flex;
 flex-wrap: wrap;
 gap: 0.5rem;
 }
 
-.skill-tag {
+.skill-tag { /* Kept for compatibility */
 background-color: var(--primary-color);
 color: var(--white);
 padding: 0.25rem 0.75rem;
@@ -447,11 +449,11 @@ font-size: 0.9rem;
 }
 
 .education-section,
-.experience-section {
+.experience-section { /* Kept for compatibility */
 margin-bottom: 2rem;
 }
 
-.timeline-item {
+.timeline-item { /* Kept for compatibility */
 margin-bottom: 1.5rem;
 padding-left: 1.5rem;
 border-left: 2px solid var(--primary-color);
@@ -459,11 +461,11 @@ position: relative;
 padding-bottom: 1rem;
 }
 
-.timeline-item:last-child {
+.timeline-item:last-child { /* Kept for compatibility */
 padding-bottom: 0;
 }
 
-.timeline-item::before {
+.timeline-item::before { /* Kept for compatibility */
 content: '';
 position: absolute;
 left: -0.5rem;
@@ -474,67 +476,67 @@ border-radius: 50%;
 background-color: var(--primary-color);
 }
 
-.timeline-item h3 {
+.timeline-item h3 { /* Kept for compatibility */
 font-size: 1.1rem;
 margin-bottom: 0.25rem;
 }
 
-.timeline-item .date {
+.timeline-item .date { /* Kept for compatibility */
 color: var(--secondary-color);
 font-size: 0.9rem;
 margin-bottom: 0.5rem;
 }
 
-.timeline-item p {
+.timeline-item p { /* Kept for compatibility */
 font-size: 0.95rem;
 }
 
-.projects-section {
+.projects-section { /* Kept for compatibility */
 margin-bottom: 2rem;
 }
 
-.projects-grid {
+.projects-grid { /* Kept for compatibility */
 display: grid;
 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 gap: 1rem;
 }
 
-.projects-card {
+.projects-card { /* Kept for compatibility */
 display: grid;
 grid-template-columns: 1fr;
 gap: 1rem;
 }
 
-.projects-list {
+.projects-list { /* Kept for compatibility */
 display: flex;
 flex-direction: column;
 gap: 1rem;
 }
 
-.project-card {
+.project-card { /* Kept for compatibility */
 background-color: var(--light-color);
 border-radius: var(--border-radius);
 padding: 1rem;
 transition: var(--transition);
 }
 
-.project-card:hover {
+.project-card:hover { /* Kept for compatibility */
 transform: translateY(-0.25rem);
 box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 }
 
-.project-card h3 {
+.project-card h3 { /* Kept for compatibility */
 font-size: 1.1rem;
 margin-bottom: 0.5rem;
 color: var(--primary-color);
 }
 
-.project-card p {
+.project-card p { /* Kept for compatibility */
 font-size: 0.9rem;
 margin-bottom: 0.5rem;
 }
 
-.project-link {
+.project-link { /* Kept for compatibility */
 display: inline-flex;
 align-items: center;
 gap: 0.25rem;
@@ -544,36 +546,37 @@ font-size: 0.9rem;
 transition: var(--transition);
 }
 
-.project-link:hover {
+.project-link:hover { /* Kept for compatibility */
 text-decoration: underline;
 }
 
-.contact-section {
+.contact-section { /* Kept for compatibility */
 margin-bottom: 2rem;
 }
 
-.contact-list {
+.contact-list { /* Kept for compatibility */
 display: flex;
 flex-wrap: wrap;
 gap: 1rem;
 }
 
-.contact-item {
+.contact-item { /* Kept for compatibility */
 display: flex;
 align-items: center;
 gap: 0.5rem;
 }
 
-.contact-item a {
+.contact-item a { /* Kept for compatibility */
 color: var(--primary-color);
 text-decoration: none;
 transition: var(--transition);
 }
 
-.contact-item a:hover {
+.contact-item a:hover { /* Kept for compatibility */
 text-decoration: underline;
 }
 
+/* Resume Template Specific Styles */
 .resume-template.single-column {
   width: 100%;
   max-width: 800px;
@@ -687,17 +690,167 @@ text-decoration: underline;
 .resume-template.grid .contact-section {
   margin-bottom: 1.2rem;
 }
+
+/* NEW STYLES FOR MODERN TEMPLATE AND FEATURES */
+.ats-score {
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    background-color: var(--gray-light);
+    color: var(--black);
+}
+
+.ats-score span.high {
+    color: var(--success-color);
+}
+
+.ats-score span.medium {
+    color: var(--warning-color);
+}
+
+.ats-score span.low {
+    color: var(--danger-color);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--white);
+    margin: 15% auto;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 80%;
+    max-width: 600px;
+    position: relative;
+}
+
+.close {
+    color: var(--dark-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    color: var(--danger-color);
+}
+
+.ai-suggestions ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+}
+
+.ai-suggestions li {
+    margin-bottom: 0.5rem;
+}
+
+/* Modern Resume Template Styles */
+.resume-template.modern {
+    max-width: 800px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.resume-template.modern .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 1rem;
+}
+
+.resume-template.modern .contact-info h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.resume-template.modern .contact-info h2 {
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.resume-template.modern .contact-info p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.resume-template.modern .profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--primary-color);
+    object-fit: cover;
+}
+
+.resume-template.modern .main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.resume-template.modern section {
+    padding: 0.5rem 0;
+}
+
+.resume-template.modern h3 {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--gray-medium);
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.resume-template.modern .experience-item,
+.resume-template.modern .education-item,
+.resume-template.modern .certification-item {
+    margin-bottom: 1rem;
+}
+
+.resume-template.modern .job-title,
+.resume-template.modern .degree,
+.resume-template.modern .cert-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.resume-template.modern .duration,
+.resume-template.modern .institution,
+.resume-template.modern .cert-issuer {
+    color: var(--secondary-color);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+
 @media (max-width: 992px) {
 .app-main {
 flex-direction: column;
 }
-.form-section,  
-.preview-section {  
-    max-width: 100%;  
-}  
-.preview-section {  
-    border-left: none;  
-    border-top: 1px solid var(--gray-medium);  
+.form-section,
+.preview-section {
+    max-width: 100%;
+}
+.preview-section {
+    border-left: none;
+    border-top: 1px solid var(--gray-medium);
 }
 }
 @media (max-width: 900px) {
@@ -723,17 +876,25 @@ flex-direction: column;
     border-radius: var(--border-radius);
     min-height: 180px;
   }
+  /* Responsive adjustments for the new modern template */
+  .resume-template.modern .header {
+      flex-direction: column;
+      text-align: center;
+  }
+  .resume-template.modern .profile-photo {
+      margin-top: 1rem;
+  }
 }
 @media (max-width: 576px) {
 .form-row {
 flex-direction: column;
 gap: 0;
 }
-.form-actions {  
-    justify-content: center;  
-}  
-.btn {  
-    width: 100%;  
-    justify-content: center;  
+.form-actions {
+    justify-content: center;
+}
+.btn {
+    width: 100%;
+    justify-content: center;
 }
 }
