@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoPortfolio Pro</title>
+    <title>ResumeCraft Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto&family=Lato&family=Montserrat&family=Open+Sans&family=Merriweather&family=Source+Sans+Pro&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -11,7 +11,7 @@
 <body>
     <div class="app-container">
         <header class="app-header">
-            <h1><i class="fas fa-portrait"></i> AutoPortfolio Pro</h1>
+            <h1><i class="fas fa-file-alt"></i> ResumeCraft Pro</h1>
             <div class="theme-switcher">
                 <button class="theme-btn light" data-theme="light"><i class="fas fa-sun"></i></button>
                 <button class="theme-btn dark" data-theme="dark"><i class="fas fa-moon"></i></button>
@@ -20,160 +20,174 @@
         </header>
         <main class="app-main">
             <section class="form-section">
-                <form id="portfolio-form" class="portfolio-form">
+                <form id="resume-form" class="resume-form">
                     <div class="form-group">
-                        <h2><i class="fas fa-user"></i> Basic Information</h2>
+                        <h2><i class="fas fa-user"></i> Personal Details</h2>
                         <div class="form-row">
                             <div class="form-control">
                                 <label for="full-name">Full Name*</label>
                                 <input type="text" id="full-name" required>
                             </div>
                             <div class="form-control">
-                                <label for="professional-title">Professional Title*</label>
-                                <input type="text" id="professional-title" required>
+                                <label for="job-title">Job Title/Position*</label>
+                                <input type="text" id="job-title" required>
                             </div>
-                        </div>
-                        <div class="form-control">
-                            <label for="bio">Short Bio / About Me*</label>
-                            <textarea id="bio" rows="3" required></textarea>
                         </div>
                         <div class="form-row">
                             <div class="form-control">
-                                <label for="profile-image-url">Profile Image URL</label>
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" placeholder="(123) 456-7890">
+                            </div>
+                            <div class="form-control">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" placeholder="you@email.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" placeholder="City, State">
+                            </div>
+                            <div class="form-control">
+                                <label for="linkedin">LinkedIn Profile</label>
+                                <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname">
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label for="summary">Professional Summary</label>
+                            <textarea id="summary" rows="4" placeholder="Brief overview of your experience and key qualifications..."></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label for="profile-image-url">Profile Photo URL</label>
                                 <input type="text" id="profile-image-url" placeholder="https://example.com/photo.jpg">
                             </div>
                             <div class="form-control">
-                                <label for="profile-image-upload">Or Upload Image</label>
+                                <label for="profile-image-upload">Or Upload Photo</label>
                                 <input type="file" id="profile-image-upload" accept="image/*">
                             </div>
                         </div>
                         <div class="form-control">
-                            <label>Profile Image Preview</label>
+                            <label>Photo Preview</label>
                             <div class="image-preview" id="image-preview"></div>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <h2><i class="fas fa-code"></i> Skills</h2>
+                        <h2><i class="fas fa-star"></i> Core Competencies</h2>
                         <div class="form-control">
                             <label for="skills-input">Add Skills (comma separated)</label>
                             <div class="tags-input-container">
-                                <input type="text" id="skills-input" placeholder="JavaScript, HTML, CSS...">
+                                <input type="text" id="skills-input" placeholder="Leadership, Communication, Problem-solving...">
                                 <button type="button" id="add-skill-btn" class="btn small"><i class="fas fa-plus"></i> Add</button>
                             </div>
                             <div class="tags-container" id="skills-tags"></div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
-                        <div id="education-container"></div>
-                        <button type="button" id="add-education-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Education</button>
-                    </div>
+
                     <div class="form-group">
                         <h2><i class="fas fa-briefcase"></i> Work Experience</h2>
                         <div id="experience-container"></div>
                         <button type="button" id="add-experience-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Experience</button>
                     </div>
+
                     <div class="form-group">
-                        <h2><i class="fas fa-project-diagram"></i> Projects</h2>
-                        <div id="projects-container"></div>
-                        <button type="button" id="add-project-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Project</button>
+                        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+                        <div id="education-container"></div>
+                        <button type="button" id="add-education-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Education</button>
                     </div>
+
                     <div class="form-group">
-                        <h2><i class="fas fa-envelope"></i> Contact Information</h2>
-                        <div class="form-row">
-                            <div class="form-control">
-                                <label for="github">GitHub</label>
-                                <input type="text" id="github" placeholder="https://github.com/username">
-                            </div>
-                            <div class="form-control">
-                                <label for="linkedin">LinkedIn</label>
-                                <input type="text" id="linkedin" placeholder="https://linkedin.com/in/username">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-control">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" placeholder="your.email@example.com">
-                            </div>
-                            <div class="form-control">
-                                <label for="website">Website</label>
-                                <input type="text" id="website" placeholder="https://yourwebsite.com">
-                            </div>
-                        </div>
+                        <h2><i class="fas fa-certificate"></i> Certifications & Awards</h2>
+                        <div id="certifications-container"></div>
+                        <button type="button" id="add-certification-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Certification</button>
                     </div>
+
                     <div class="form-group">
-                        <h2><i class="fas fa-paint-brush"></i> Theme & Colors</h2>
+                        <h2><i class="fas fa-language"></i> Languages</h2>
+                        <div id="languages-container"></div>
+                        <button type="button" id="add-language-btn" class="btn secondary"><i class="fas fa-plus"></i> Add Language</button>
+                    </div>
+
+                    <div class="form-group">
+                        <h2><i class="fas fa-paint-brush"></i> Resume Styling</h2>
                         <div class="form-row">
                             <div class="form-control">
-                                <label for="primary-color-picker">Primary Color</label>
+                                <label for="primary-color-picker">Accent Color</label>
                                 <input type="color" id="primary-color-picker" value="#4a6fa5">
-                            </div>
-                            <div class="form-control">
-                                <label for="secondary-color-picker">Secondary Color</label>
-                                <input type="color" id="secondary-color-picker" value="#6c757d">
                             </div>
                             <div class="form-control">
                                 <label for="font-family-picker">Font Family</label>
                                 <select id="font-family-picker">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Calibri">Calibri</option>
+                                    <option value="Garamond">Garamond</option>
                                     <option value="Poppins">Poppins</option>
                                     <option value="Roboto">Roboto</option>
-                                    <option value="Lato">Lato</option>
-                                    <option value="Montserrat">Montserrat</option>
-                                    <option value="Open Sans">Open Sans</option>
-                                    <option value="Merriweather">Merriweather</option>
-                                    <option value="Source Sans Pro">Source Sans Pro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label for="resume-template">Resume Template</label>
+                                <select id="resume-template">
+                                    <option value="modern">Modern Professional</option>
+                                    <option value="classic">Classic Business</option>
+                                    <option value="creative">Creative Design</option>
+                                    <option value="executive">Executive Format</option>
+                                    <option value="chronological">Chronological</option>
                                 </select>
                             </div>
                             <div class="form-control">
-                                <label for="font-size-picker">Font Size</label>
-                                <input type="number" id="font-size-picker" min="12" max="28" value="16">
+                                <label for="font-size-picker">Text Size</label>
+                                <input type="number" id="font-size-picker" min="10" max="14" value="11">
                             </div>
                         </div>
                     </div>
+
                     <div class="form-actions">
-                        <button type="button" id="reset-btn" class="btn danger"><i class="fas fa-trash"></i> Reset Form</button>
-                        <button type="button" id="save-btn" class="btn"><i class="fas fa-save"></i> Save Data</button>
-                        <button type="button" id="export-json-btn" class="btn"><i class="fas fa-file-export"></i> Export JSON</button>
-                        <button type="button" id="download-btn" class="btn primary"><i class="fas fa-download"></i> Download Portfolio (HTML)</button>
+                        <button type="button" id="reset-btn" class="btn danger"><i class="fas fa-trash"></i> Clear All</button>
+                        <button type="button" id="save-btn" class="btn"><i class="fas fa-save"></i> Save Resume</button>
+                        <button type="button" id="export-json-btn" class="btn"><i class="fas fa-file-export"></i> Export Data</button>
                         <button type="button" id="download-pdf-btn" class="btn success"><i class="fas fa-file-pdf"></i> Download PDF</button>
                         <button type="button" id="download-docx-btn" class="btn info"><i class="fas fa-file-word"></i> Download DOCX</button>
-                        <button type="button" id="download-img-btn" class="btn"><i class="fas fa-image"></i> Download as Image</button>
-                        <button type="button" id="download-md-btn" class="btn"><i class="fab fa-markdown"></i> Export Markdown</button>
+                        <!-- New buttons for next-level features -->
+                        <button type="button" id="ai-assistant-btn" class="btn warning"><i class="fas fa-robot"></i> AI Assistant</button>
+                        <button type="button" id="linkedin-import-btn" class="btn primary"><i class="fab fa-linkedin"></i> Import from LinkedIn</button>
                     </div>
                 </form>
             </section>
             <section class="preview-section">
                 <div class="preview-header">
-                    <h2><i class="fas fa-eye"></i> Live Preview</h2>
+                    <h2><i class="fas fa-eye"></i> Resume Preview</h2>
                     <div class="preview-options">
-                        <label>Layout Style:</label>
-                        <select id="layout-style">
-                            <option value="grid">Grid</option>
-                            <option value="card">Card</option>
-                            <option value="list">List</option>
-                        </select>
-                        <label>Resume Template:</label>
-                        <select id="resume-template">
-                            <option value="single-column">Single Column</option>
-                            <option value="two-column">Two Column</option>
-                            <option value="header-footer">Header–Body–Footer</option>
-                            <option value="split-page">Split Page (50/50)</option>
-                            <option value="grid">Grid Layout</option>
-                        </select>
+                        <button id="print-btn" class="btn"><i class="fas fa-print"></i> Print</button>
+                        <!-- ATS Score Display -->
+                        <div class="ats-score">ATS Score: <span id="ats-score-value">N/A</span></div>
                     </div>
                 </div>
-                <div class="portfolio-preview" id="portfolio-preview"></div>
+                <div class="resume-preview" id="resume-preview"></div>
             </section>
         </main>
         <footer class="app-footer">
-            <p>AutoPortfolio Pro - Create your professional portfolio in minutes</p>
+            <p>ResumeCraft Pro - Build resumes that get noticed</p>
         </footer>
+        
+        <!-- AI Assistant Modal -->
+        <div id="ai-assistant-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>AI Resume Assistant</h3>
+                <div class="ai-suggestions">
+                    <p>Get personalized suggestions to improve your resume.</p>
+                    <ul id="ai-suggestion-list"></ul>
+                </div>
+            </div>
+        </div>
     </div>
-    <input type="file" id="json-import" accept=".json" style="display: none;">
-    <input type="file" id="linkedin-import" accept=".csv,.json" style="display:none;">
-    <input type="text" id="github-username" placeholder="GitHub Username" style="display:none;">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.5.0/docx.min.js"></script>
     <script src="script.js"></script>
 </body>
